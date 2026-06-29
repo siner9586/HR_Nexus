@@ -9,9 +9,10 @@ import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { maskEmployeeFields, maskSensitiveValue } from "@/lib/masking";
 import { assertPermission, hasPermission, type AuthUser } from "@/lib/permissions";
+import { isDemoLoginEnabled } from "@/lib/runtime-env";
 import { getStripeClient, isBillingMockMode } from "@/lib/stripe";
 import { assertPlanEmployeeLimit, requireBillingAccess, requirePlatformAccess, requireTenantAccess } from "@/lib/tenant";
-import { checkoutSchema, employeeCreateSchema, loginSchema, registerSchema } from "@/lib/validators";
+import { checkoutSchema, demoRequestSchema, employeeCreateSchema, loginSchema, registerSchema } from "@/lib/validators";
 
 type Params = { params: Promise<{ path?: string[] }> };
 
@@ -82,6 +83,7 @@ const resources: Record<string, ResourceConfig> = {
   files: { model: "fileAsset", module: "files", viewPermission: "files.view", createPermission: "files.upload", tenantScoped: true, orderBy: { createdAt: "desc" }, searchFields: ["fileName", "ownerType"] },
   "audit-logs": { model: "auditLog", module: "audit_logs", viewPermission: "audit_logs.view", tenantScoped: true, orderBy: { createdAt: "desc" }, searchFields: ["module", "targetType"] },
   exports: { model: "exportJob", module: "exports", viewPermission: "exports.view", createPermission: "exports.manage", tenantScoped: true, orderBy: { createdAt: "desc" }, searchFields: ["module"] },
+  "demo-requests": { model: "demoRequest", module: "platform", viewPermission: "platform.view", updatePermission: "platform.manage_tenants", tenantScoped: false, orderBy: { createdAt: "desc" }, searchFields: ["name", "company", "email"] },
 };
 
 function pathKey(parts: string[]) {
@@ -163,6 +165,7 @@ async function handleAuth(request: NextRequest, parts: string[]) {
     return ok({ token, user: authUser, redirectTo: authUser.roles.includes("PLATFORM_ADMIN") ? "/platform" : "/dashboard" });
   }
   if (request.method === "POST" && parts[1] === "demo-login") {
+    if (!isDemoLoginEnabled()) return fail("FORBIDDEN", "当前环境未启用演示登录", { status: 403 });
     const body = await jsonBody(request);
     const email = String(body.email ?? "owner@demo.com");
     const user = await prisma.user.findUnique({ where: { email } });
@@ -181,6 +184,36 @@ async function handleAuth(request: NextRequest, parts: string[]) {
     const user = await requireCurrentUser(request);
     return ok({ user });
   }
+  return fail("NOT_FOUND", "接口不存在", { status: 404 });
+}
+
+async function handleDemoRequests(request: NextRequest) {
+  if (request.method === "POST") {
+    const body = demoRequestSchema.parse(await jsonBody(request));
+    const demoRequest = await prisma.demoRequest.create({ data: body });
+    await writeAuditLog({
+      tenantId: null,
+      actorUserId: null,
+      action: "CREATE",
+      module: "demo_request",
+      targetType: "DemoRequest",
+      targetId: demoRequest.id,
+      metadata: { company: body.company, employeeCount: body.employeeCount ?? null },
+    });
+    return ok({ id: demoRequest.id, status: demoRequest.status }, { status: 201 });
+  }
+
+  const user = await requireCurrentUser(request);
+  requirePlatformAccess(user);
+  if (request.method === "GET") {
+    const { page, pageSize, skip, take } = paginationFromUrl(request.nextUrl);
+    const [items, total] = await Promise.all([
+      prisma.demoRequest.findMany({ orderBy: { createdAt: "desc" }, skip, take }),
+      prisma.demoRequest.count(),
+    ]);
+    return ok({ items, total, page, pageSize });
+  }
+
   return fail("NOT_FOUND", "接口不存在", { status: 404 });
 }
 
@@ -563,8 +596,17 @@ async function handleGenericResource(request: NextRequest, parts: string[]) {
 }
 
 async function dispatch(request: NextRequest, parts: string[]) {
+  if (parts[0] === "health") {
+    await prisma.$queryRaw`SELECT 1`;
+    return ok({ status: "ok", database: "ok", timestamp: new Date().toISOString(), environment: process.env.NODE_ENV ?? "development" });
+  }
+  if (parts[0] === "version") {
+    const { getVersionInfo } = await import("@/lib/version");
+    return ok(getVersionInfo());
+  }
   if (parts[0] === "auth") return handleAuth(request, parts);
   if (parts[0] === "register" && request.method === "POST") return handleRegister(request);
+  if (parts[0] === "demo-requests") return handleDemoRequests(request);
   if (parts[0] === "platform") return handlePlatform(request, parts);
   if (parts[0] === "tenants") return handleTenant(request, parts);
   if (parts[0] === "employees") return handleEmployees(request, parts);

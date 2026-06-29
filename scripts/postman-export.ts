@@ -10,6 +10,10 @@ type RequestDef = {
 };
 
 const folders: Record<string, RequestDef[]> = {
+  Health: [
+    { name: "Health Check", method: "GET", url: "/api/health", tests: ["success"] },
+    { name: "Version", method: "GET", url: "/api/version", tests: ["success"] },
+  ],
   Auth: [
     { name: "Login Platform Admin", method: "POST", url: "/api/auth/login", body: { email: "{{platformAdminEmail}}", password: "{{platformAdminPassword}}" }, tests: ["saveToken"] },
     { name: "Login Owner", method: "POST", url: "/api/auth/login", body: { email: "{{ownerEmail}}", password: "{{ownerPassword}}" }, tests: ["saveToken"] },
@@ -24,6 +28,7 @@ const folders: Record<string, RequestDef[]> = {
     { name: "List Tenants", method: "GET", url: "/api/platform/tenants" },
     { name: "List Plans", method: "GET", url: "/api/platform/plans" },
     { name: "List Subscriptions", method: "GET", url: "/api/platform/subscriptions" },
+    { name: "List Demo Requests", method: "GET", url: "/api/demo-requests" },
   ],
   Tenant: [
     { name: "Current Tenant", method: "GET", url: "/api/tenants/current" },
@@ -140,6 +145,9 @@ const folders: Record<string, RequestDef[]> = {
     { name: "Mock Checkout", method: "POST", url: "/api/billing/mock-upgrade", body: { planCode: "ENTERPRISE" } },
     { name: "Webhook Test Notes", method: "POST", url: "/api/billing/webhook", body: { id: "evt_mock_postman", type: "checkout.session.completed", data: { object: { metadata: { tenantId: "{{tenantId}}", planCode: "PROFESSIONAL" } } } } },
   ],
+  "Demo Request": [
+    { name: "Create Demo Request", method: "POST", url: "/api/demo-requests", body: { name: "Postman预约", company: "Postman测试公司", email: "demo.request@example.com", phone: "13800000000", employeeCount: "200-500", message: "希望了解薪资与审批模块" }, tests: ["success"] },
+  ],
 };
 
 const testScripts: Record<string, string> = {
@@ -179,40 +187,44 @@ const collection = {
   item: Object.entries(folders).map(([name, requests]) => ({ name, item: requests.map(request) })),
 };
 
-const environment = {
-  name: "HR Nexus Local",
-  values: [
-    ["baseUrl", "http://localhost:3000"],
-    ["platformAdminEmail", "admin@platform.local"],
-    ["platformAdminPassword", "Admin123456!"],
-    ["ownerEmail", "owner@demo.com"],
-    ["ownerPassword", "Demo123456!"],
-    ["hrEmail", "hr@demo.com"],
-    ["hrPassword", "Demo123456!"],
-    ["payrollEmail", "payroll@demo.com"],
-    ["payrollPassword", "Demo123456!"],
-    ["employeeEmail", "employee@demo.com"],
-    ["employeePassword", "Demo123456!"],
-    ["token", ""],
-    ["tenantId", ""],
-    ["employeeId", ""],
-    ["companyId", ""],
-    ["departmentId", ""],
-    ["leaveTypeId", ""],
-    ["contractId", ""],
-    ["salaryBatchId", ""],
-    ["workflowTaskId", ""],
-    ["payslipId", ""],
-    ["otherPayslipId", ""],
-    ["candidateId", ""],
-    ["trainingTaskId", ""],
-    ["notificationId", ""],
-    ["fileId", ""],
-  ].map(([key, value]) => ({ key, value, enabled: true, type: key.toLowerCase().includes("password") || key === "token" ? "secret" : "default" })),
-};
+function environment(name: string, baseUrl: string, includeDemoPasswords: boolean) {
+  return {
+    name,
+    values: [
+      ["baseUrl", baseUrl],
+      ["platformAdminEmail", includeDemoPasswords ? "admin@platform.local" : ""],
+      ["platformAdminPassword", includeDemoPasswords ? "Admin123456!" : ""],
+      ["ownerEmail", includeDemoPasswords ? "owner@demo.com" : ""],
+      ["ownerPassword", includeDemoPasswords ? "Demo123456!" : ""],
+      ["hrEmail", includeDemoPasswords ? "hr@demo.com" : ""],
+      ["hrPassword", includeDemoPasswords ? "Demo123456!" : ""],
+      ["payrollEmail", includeDemoPasswords ? "payroll@demo.com" : ""],
+      ["payrollPassword", includeDemoPasswords ? "Demo123456!" : ""],
+      ["employeeEmail", includeDemoPasswords ? "employee@demo.com" : ""],
+      ["employeePassword", includeDemoPasswords ? "Demo123456!" : ""],
+      ["token", ""],
+      ["tenantId", ""],
+      ["employeeId", ""],
+      ["companyId", ""],
+      ["departmentId", ""],
+      ["leaveTypeId", ""],
+      ["contractId", ""],
+      ["salaryBatchId", ""],
+      ["workflowTaskId", ""],
+      ["payslipId", ""],
+      ["otherPayslipId", ""],
+      ["candidateId", ""],
+      ["trainingTaskId", ""],
+      ["notificationId", ""],
+      ["fileId", ""],
+    ].map(([key, value]) => ({ key, value, enabled: true, type: key.toLowerCase().includes("password") || key === "token" ? "secret" : "default" })),
+  };
+}
 
 const outDir = join(process.cwd(), "docs", "postman");
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "HR_Nexus.postman_collection.json"), `${JSON.stringify(collection, null, 2)}\n`);
-writeFileSync(join(outDir, "HR_Nexus.local.postman_environment.json"), `${JSON.stringify(environment, null, 2)}\n`);
-console.log("Postman collection and environment generated.");
+writeFileSync(join(outDir, "HR_Nexus.local.postman_environment.json"), `${JSON.stringify(environment("HR Nexus Local", "http://127.0.0.1:3000", true), null, 2)}\n`);
+writeFileSync(join(outDir, "HR_Nexus.staging.postman_environment.json"), `${JSON.stringify(environment("HR Nexus Staging", "https://hr-nexus-staging.vercel.app", true), null, 2)}\n`);
+writeFileSync(join(outDir, "HR_Nexus.production.postman_environment.json"), `${JSON.stringify(environment("HR Nexus Production", "https://hr-nexus-hazel.vercel.app", false), null, 2)}\n`);
+console.log("Postman collection and environments generated.");

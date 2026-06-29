@@ -1,36 +1,40 @@
-const baseUrl = process.env.SMOKE_BASE_URL ?? "http://localhost:3000";
+import { assertJsonSuccess, normalizeBaseUrl, smokeRequest } from "./smoke-utils";
 
-async function api(path: string, init?: RequestInit) {
-  const response = await fetch(`${baseUrl}${path}`, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
-  });
-  const cookie = response.headers.get("set-cookie");
-  const json = await response.json();
-  return { response, json, cookie };
-}
+const baseUrl = normalizeBaseUrl(
+  process.env.BASE_URL ?? process.env.SMOKE_BASE_URL ?? process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://127.0.0.1:3000",
+);
+const email = process.env.SMOKE_EMAIL ?? process.env.OWNER_EMAIL ?? "owner@demo.com";
+const password = process.env.SMOKE_PASSWORD ?? process.env.OWNER_PASSWORD ?? "Demo123456!";
 
 async function main() {
-  const login = await api("/api/auth/login", {
-    method: "POST",
-    body: JSON.stringify({ email: "owner@demo.com", password: "Demo123456!" }),
-  });
-  if (!login.json.success) throw new Error("Login smoke failed");
-  const cookie = login.cookie?.split(";")[0] ?? "";
-
-  for (const path of ["/api/auth/me", "/api/employees", "/api/contracts", "/api/analytics/dashboard", "/api/billing/current"]) {
-    const result = await api(path, { headers: { cookie } });
-    if (!result.json.success) throw new Error(`Smoke failed for ${path}: ${JSON.stringify(result.json)}`);
+  for (const path of ["/api/health", "/api/version"]) {
+    const result = await smokeRequest(baseUrl, path);
+    assertJsonSuccess(path, result);
   }
 
-  const checkout = await api("/api/billing/checkout", {
+  const login = await smokeRequest(baseUrl, "/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+  assertJsonSuccess("login", login);
+  const cookie = login.cookie;
+
+  for (const path of ["/api/auth/me", "/api/employees", "/api/contracts", "/api/analytics/dashboard", "/api/billing/current"]) {
+    const result = await smokeRequest(baseUrl, path, { headers: { cookie } });
+    assertJsonSuccess(path, result);
+  }
+
+  const checkout = await smokeRequest(baseUrl, "/api/billing/checkout", {
     method: "POST",
     headers: { cookie },
     body: JSON.stringify({ planCode: "PROFESSIONAL", interval: "month" }),
   });
-  if (!checkout.json.success || !checkout.json.data.url) throw new Error("Billing checkout smoke failed");
+  const checkoutBody = checkout.body as { success?: boolean; data?: { url?: string } };
+  if (!checkout.response.ok || checkoutBody.success !== true || !checkoutBody.data?.url) {
+    throw new Error(`Billing checkout smoke failed with ${checkout.response.status}: ${JSON.stringify(checkout.body)}`);
+  }
 
-  console.log("Smoke tests passed.");
+  console.log(`Smoke tests passed for ${baseUrl}.`);
 }
 
 main().catch((error) => {

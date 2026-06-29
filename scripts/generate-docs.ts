@@ -28,7 +28,7 @@ npm run db:seed
 npm run dev
 \`\`\`
 
-访问 http://localhost:3000。
+访问 http://127.0.0.1:3000。
 
 ## 演示账号
 

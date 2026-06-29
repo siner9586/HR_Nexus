@@ -4,7 +4,7 @@
 
 ```bash
 docker compose up -d postgres
-npm run db:push
+npm run db:migrate
 npm run db:seed
 npm run dev
 ```
@@ -17,15 +17,29 @@ docker compose up --build
 
 ## Vercel + Neon
 
-1. 在 Neon 创建 PostgreSQL，复制 DATABASE_URL。
-2. 在 Vercel 导入 GitHub 仓库。
-3. 设置环境变量：DATABASE_URL、NEXTAUTH_SECRET、NEXTAUTH_URL、APP_URL、BILLING_MOCK_MODE、Stripe 变量。
-4. Build command: npm run build。
-5. 部署后执行迁移/推送：`npx prisma db push`，再执行 seed。
+Current production resources already exist. Do not recreate the Neon project or Vercel project for V1.0 production landing.
+
+1. Use existing Vercel project `githubcomsiner9586excavator/hr-nexus`.
+2. Production URL: `https://hr-nexus-hazel.vercel.app`.
+3. Use existing Neon project `weathered-sunset-91227227`.
+4. Production branch: `main` / `br-royal-meadow-aj5mfnua`.
+5. Preview branch: `preview` / `br-blue-block-ajqo0ky7`.
+6. Set environment variables in Vercel; never commit `.env`, database URLs, Stripe secrets, or webhook secrets.
+7. Build command: `npm run build`.
+8. Deploy migrations with `npm run db:migrate:deploy`.
+9. Do not run production reset, `db push`, or demo seed against production.
 
 Vercel CLI 可用：
 
 ```bash
 vercel env pull .env.local
-vercel deploy
+vercel deploy --prod --scope githubcomsiner9586excavator
+```
+
+After deploy:
+
+```bash
+curl -I https://hr-nexus-hazel.vercel.app/api/health
+curl -I https://hr-nexus-hazel.vercel.app/api/version
+PRODUCTION_BASE_URL=https://hr-nexus-hazel.vercel.app npm run smoke:production
 ```

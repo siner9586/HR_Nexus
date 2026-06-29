@@ -4,6 +4,8 @@
 
 - Collection: docs/postman/HR_Nexus.postman_collection.json
 - Environment: docs/postman/HR_Nexus.local.postman_environment.json
+- Staging Environment: docs/postman/HR_Nexus.staging.postman_environment.json
+- Production Environment: docs/postman/HR_Nexus.production.postman_environment.json
 
 ## 使用步骤
 
@@ -20,3 +22,13 @@
 ## Billing mock mode
 
 BILLING_MOCK_MODE=true 时 Billing/Create Checkout Session 会返回 mock URL。
+
+## CLI runs
+
+```bash
+BASE_URL=http://127.0.0.1:3000 npm run postman:test:local
+BASE_URL=https://hr-nexus-staging.vercel.app npm run postman:test:staging
+BASE_URL=https://hr-nexus-hazel.vercel.app npm run postman:test:production
+```
+
+Production environment files intentionally leave passwords blank. Use local Postman secret values or environment variables when authenticated production validation is required.

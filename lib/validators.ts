@@ -29,3 +29,12 @@ export const checkoutSchema = z.object({
   planCode: z.enum(["STANDARD", "PROFESSIONAL", "ENTERPRISE"]),
   interval: z.enum(["month", "year"]).default("month"),
 });
+
+export const demoRequestSchema = z.object({
+  name: z.string().min(2),
+  company: z.string().min(2),
+  phone: z.string().max(50).optional(),
+  email: z.string().email(),
+  employeeCount: z.string().max(50).optional(),
+  message: z.string().max(2000).optional(),
+});
