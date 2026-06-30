@@ -2,7 +2,6 @@ import "dotenv/config";
 
 const env = process.env;
 const isProduction = env.NODE_ENV === "production";
-const isBillingMock = env.BILLING_MOCK_MODE !== "false";
 
 type Check = {
   key: string;
@@ -22,26 +21,12 @@ const checks: Check[] = [
   { key: "NEXTAUTH_URL", required: true },
   { key: "APP_URL", required: true },
   { key: "NODE_ENV", required: true, valid: env.NODE_ENV === "production", message: "must be production for production checks" },
-  { key: "BILLING_MOCK_MODE", required: true },
-  { key: "STRIPE_SECRET_KEY", required: !isBillingMock },
-  { key: "STRIPE_WEBHOOK_SECRET", required: !isBillingMock },
   { key: "UPLOAD_PROVIDER", required: true },
   { key: "ADMIN_EMAIL", required: true },
   { key: "ADMIN_PASSWORD", required: true, valid: !isProduction || (present("ADMIN_PASSWORD") && String(env.ADMIN_PASSWORD).length >= 12 && env.ADMIN_PASSWORD !== "Admin123456!"), message: "must be set, at least 12 chars, and not the demo password" },
   { key: "ADMIN_NAME", required: true },
   { key: "SENTRY_DSN", required: false },
 ];
-
-if (!isBillingMock) {
-  checks.push(
-    { key: "STRIPE_PRICE_STANDARD_MONTHLY", required: true },
-    { key: "STRIPE_PRICE_STANDARD_YEARLY", required: true },
-    { key: "STRIPE_PRICE_PROFESSIONAL_MONTHLY", required: true },
-    { key: "STRIPE_PRICE_PROFESSIONAL_YEARLY", required: true },
-    { key: "STRIPE_PRICE_ENTERPRISE_MONTHLY", required: true },
-    { key: "STRIPE_PRICE_ENTERPRISE_YEARLY", required: true },
-  );
-}
 
 const failures = checks.filter((check) => {
   if (check.required && !present(check.key)) return true;

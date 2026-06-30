@@ -8,7 +8,7 @@ export default function HomePage() {
   const industries = ["科技互联网", "制造业", "连锁零售", "专业服务", "集团型组织", "成长型企业"];
   const deliveryPaths = [
     {
-      title: "SaaS 快速上线",
+      title: "企业内部上线",
       description: "适合中小企业快速完成员工、组织、合同、考勤、请假、审批与数据看板上线。",
     },
     {
@@ -103,7 +103,7 @@ export default function HomePage() {
       </section>
       <section className="mx-auto max-w-7xl px-6 py-14">
         <div className="grid gap-4 md:grid-cols-3">
-          {["员工主数据统一化", "审批流程可配置化", "薪资成本可视化", "敏感访问审计化", "Stripe 订阅商业化", "Vercel + Neon 可部署"].map((value) => (
+          {["员工主数据统一化", "审批流程可配置化", "薪资成本可视化", "敏感访问审计化", "私有化部署友好", "Vercel + Neon 可部署"].map((value) => (
             <Card key={value}>
               <CardContent className="flex items-center gap-3 p-5">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600" />
@@ -118,7 +118,7 @@ export default function HomePage() {
           <CardContent id="security" className="scroll-mt-8 space-y-3 p-5">
             <ShieldCheck className="h-7 w-7 text-blue-700" />
             <h2 className="text-xl font-semibold text-slate-950">安全与合规</h2>
-            <p className="text-sm leading-6 text-slate-600">多租户隔离、RBAC、敏感字段脱敏、薪资访问审计、导出权限和 Stripe webhook 签名校验。</p>
+            <p className="text-sm leading-6 text-slate-600">多租户隔离、RBAC、敏感字段脱敏、薪资访问审计、导出权限和关键操作审计。</p>
           </CardContent>
         </Card>
         <Card>
@@ -138,14 +138,14 @@ export default function HomePage() {
           <CardContent id="deployment" className="scroll-mt-8 space-y-3 p-5">
             <DatabaseZap className="h-7 w-7 text-blue-700" />
             <h2 className="text-xl font-semibold text-slate-950">部署方式</h2>
-            <p className="text-sm leading-6 text-slate-600">默认支持 Vercel + Neon SaaS 部署；文件存储可切换 R2/S3/MinIO；大型客户可走私有化部署。</p>
+            <p className="text-sm leading-6 text-slate-600">默认支持 Vercel + Neon 部署；文件存储可切换 R2/S3/MinIO；大型客户可走私有化部署。</p>
           </CardContent>
         </Card>
       </section>
       <section className="mx-auto max-w-7xl px-6 pb-16">
         <div className="mb-6">
           <h2 className="text-2xl font-semibold text-slate-950">灵活适配不同企业的人力资源数字化路径</h2>
-          <p className="mt-2 max-w-3xl text-slate-600">围绕上线速度、模块深度与组织复杂度组合交付路径，公开首页不展示固定价格，企业可通过预约演示了解适配方案。</p>
+          <p className="mt-2 max-w-3xl text-slate-600">围绕上线速度、模块深度与组织复杂度组合交付路径，公开首页不展示固定报价，企业可通过预约演示了解适配方案。</p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {deliveryPaths.map((path) => (

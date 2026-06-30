@@ -92,7 +92,6 @@ const apiFolders = [
   "files",
   "exports",
   "audit-logs",
-  "billing",
 ];
 
 for (const folder of apiFolders) {

@@ -1,13 +1,13 @@
 # HR Nexus V1.0
 
-HR Nexus Enterprise Human Resource Management Platform 是一个多租户企业级 HR SaaS 平台，覆盖员工、组织、入职、生命周期、合同、考勤、请假、薪资、社保公积金、审批、招聘、绩效、培训、通知、文件、审计、Stripe 订阅计费和 Postman API 测试。
+HR Nexus Enterprise Human Resource Management Platform 是一个多租户企业级人力资源管理平台，覆盖员工、组织、入职、生命周期、合同、考勤、请假、薪资、社保公积金、审批、招聘、绩效、培训、通知、文件、审计、导入导出和 Postman API 测试。
 
 ## 技术栈
 
 - Next.js App Router、React、TypeScript、Tailwind CSS
 - Prisma ORM、PostgreSQL、Zod
 - JWT Cookie session、bcryptjs、RBAC、字段权限、审计日志
-- Stripe Checkout、Billing Portal、Webhook、mock billing mode
+- CSV 导入导出、ExportJob、敏感字段脱敏
 - Vitest、Playwright、Postman Collection
 - Docker、Vercel + Neon 部署说明
 
@@ -24,7 +24,7 @@ npm run db:seed
 npm run dev
 ```
 
-访问 http://localhost:3000。
+访问 http://127.0.0.1:3000。
 
 ## 演示账号
 
@@ -57,8 +57,4 @@ npm run postman:export
 
 ## Postman
 
-导入 `docs/postman/HR_Nexus.postman_collection.json` 和 `docs/postman/HR_Nexus.local.postman_environment.json`，先运行 Auth/Login Owner 保存 token，再运行核心接口。
-
-## Stripe
-
-默认 `BILLING_MOCK_MODE=true`，无需真实密钥即可返回 mock checkout URL。配置 Stripe test key、price id 和 webhook secret 后可切换到真实 Stripe test mode。
+导入 `docs/postman/HR_Nexus.postman_collection.json` 和 `docs/postman/HR_Nexus.local.postman_environment.json`，先运行 Auth/Login Owner 保存 token，再运行各模块接口。

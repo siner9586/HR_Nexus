@@ -21,7 +21,3 @@ export function forbidden(message = "无权限操作") {
 export function notFound(message = "资源不存在") {
   return new AppError("NOT_FOUND", message, 404);
 }
-
-export function planLimitExceeded(message = "当前套餐用量已达上限，请升级套餐") {
-  return new AppError("PLAN_LIMIT_EXCEEDED", message, 402);
-}

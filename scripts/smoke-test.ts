@@ -19,19 +19,17 @@ async function main() {
   assertJsonSuccess("login", login);
   const cookie = login.cookie;
 
-  for (const path of ["/api/auth/me", "/api/employees", "/api/contracts", "/api/analytics/dashboard", "/api/billing/current"]) {
+  for (const path of ["/api/auth/me", "/api/employees", "/api/contracts", "/api/analytics/dashboard"]) {
     const result = await smokeRequest(baseUrl, path, { headers: { cookie } });
     assertJsonSuccess(path, result);
   }
 
-  const checkout = await smokeRequest(baseUrl, "/api/billing/checkout", {
-    method: "POST",
-    headers: { cookie },
-    body: JSON.stringify({ planCode: "PROFESSIONAL", interval: "month" }),
-  });
-  const checkoutBody = checkout.body as { success?: boolean; data?: { url?: string } };
-  if (!checkout.response.ok || checkoutBody.success !== true || !checkoutBody.data?.url) {
-    throw new Error(`Billing checkout smoke failed with ${checkout.response.status}: ${JSON.stringify(checkout.body)}`);
+  for (const path of ["/api/employees/export", "/api/departments/export", "/api/contracts/export", "/api/leave/requests/export", "/api/recruitment/candidates/export", "/api/training/courses/export"]) {
+    const result = await smokeRequest(baseUrl, path, { headers: { cookie } });
+    const contentType = result.response.headers.get("content-type") ?? "";
+    if (!result.response.ok || !contentType.includes("text/csv")) {
+      throw new Error(`${path} export smoke failed with ${result.response.status}: ${contentType}`);
+    }
   }
 
   console.log(`Smoke tests passed for ${baseUrl}.`);

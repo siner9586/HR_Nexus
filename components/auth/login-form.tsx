@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -57,6 +58,12 @@ export function LoginForm({ demoLoginEnabled }: { demoLoginEnabled: boolean }) {
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           登录
         </Button>
+        <Link
+          href="/register"
+          className="inline-flex h-10 w-full items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+        >
+          创建企业账号
+        </Link>
         {demoLoginEnabled ? (
           <div className="grid gap-2 border-t border-slate-100 pt-4">
             <p className="text-xs font-medium text-amber-700">Demo environment</p>

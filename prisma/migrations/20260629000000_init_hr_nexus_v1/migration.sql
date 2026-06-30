@@ -5,12 +5,6 @@ CREATE SCHEMA IF NOT EXISTS "public";
 CREATE TYPE "TenantStatus" AS ENUM ('ACTIVE', 'SUSPENDED', 'TRIAL', 'EXPIRED', 'ARCHIVED');
 
 -- CreateEnum
-CREATE TYPE "TenantPlan" AS ENUM ('FREE', 'STANDARD', 'PROFESSIONAL', 'ENTERPRISE', 'PRIVATE_DEPLOYMENT');
-
--- CreateEnum
-CREATE TYPE "SubscriptionStatus" AS ENUM ('TRIALING', 'ACTIVE', 'PAST_DUE', 'CANCELED', 'UNPAID', 'INCOMPLETE', 'INCOMPLETE_EXPIRED', 'PAUSED', 'MOCK');
-
--- CreateEnum
 CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'INVITED', 'DISABLED', 'LOCKED');
 
 -- CreateEnum
@@ -80,7 +74,7 @@ CREATE TYPE "FileVisibility" AS ENUM ('PUBLIC_WITHIN_TENANT', 'HR_ONLY', 'MANAGE
 CREATE TYPE "ExportJobStatus" AS ENUM ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'EXPIRED');
 
 -- CreateEnum
-CREATE TYPE "AuditAction" AS ENUM ('LOGIN', 'LOGOUT', 'VIEW', 'CREATE', 'UPDATE', 'DELETE', 'EXPORT', 'IMPORT', 'DOWNLOAD', 'UPLOAD', 'APPROVE', 'REJECT', 'PUBLISH', 'MASKED_VIEW', 'SENSITIVE_VIEW', 'BILLING_CHECKOUT', 'BILLING_WEBHOOK', 'BILLING_PORTAL');
+CREATE TYPE "AuditAction" AS ENUM ('LOGIN', 'LOGOUT', 'VIEW', 'CREATE', 'UPDATE', 'DELETE', 'EXPORT', 'IMPORT', 'DOWNLOAD', 'UPLOAD', 'APPROVE', 'REJECT', 'PUBLISH', 'MASKED_VIEW', 'SENSITIVE_VIEW');
 
 -- CreateEnum
 CREATE TYPE "DataScopeType" AS ENUM ('ALL', 'COMPANY', 'DEPARTMENT_AND_CHILDREN', 'DEPARTMENT_ONLY', 'SELF', 'CUSTOM');
@@ -98,12 +92,7 @@ CREATE TABLE "Tenant" (
     "contactName" TEXT,
     "contactEmail" TEXT,
     "contactPhone" TEXT,
-    "plan" "TenantPlan" NOT NULL DEFAULT 'FREE',
     "status" "TenantStatus" NOT NULL DEFAULT 'TRIAL',
-    "trialEndsAt" TIMESTAMP(3),
-    "subscriptionEndsAt" TIMESTAMP(3),
-    "stripeCustomerId" TEXT,
-    "stripeSubscriptionId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -131,84 +120,6 @@ CREATE TABLE "TenantSetting" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "TenantSetting_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Plan" (
-    "id" TEXT NOT NULL,
-    "code" "TenantPlan" NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "priceMonthly" DECIMAL(12,2) NOT NULL DEFAULT 0,
-    "priceYearly" DECIMAL(12,2) NOT NULL DEFAULT 0,
-    "currency" TEXT NOT NULL DEFAULT 'CNY',
-    "maxEmployees" INTEGER,
-    "maxStorageGB" INTEGER NOT NULL DEFAULT 1,
-    "includedAiCredits" INTEGER NOT NULL DEFAULT 0,
-    "features" JSONB NOT NULL,
-    "stripeMonthlyPriceId" TEXT,
-    "stripeYearlyPriceId" TEXT,
-    "isPublic" BOOLEAN NOT NULL DEFAULT true,
-    "sortOrder" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Plan_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Subscription" (
-    "id" TEXT NOT NULL,
-    "tenantId" TEXT NOT NULL,
-    "planId" TEXT NOT NULL,
-    "stripeCustomerId" TEXT,
-    "stripeSubscriptionId" TEXT,
-    "stripePriceId" TEXT,
-    "status" "SubscriptionStatus" NOT NULL DEFAULT 'MOCK',
-    "interval" TEXT NOT NULL DEFAULT 'month',
-    "seats" INTEGER NOT NULL DEFAULT 1,
-    "currentPeriodStart" TIMESTAMP(3),
-    "currentPeriodEnd" TIMESTAMP(3),
-    "cancelAtPeriodEnd" BOOLEAN NOT NULL DEFAULT false,
-    "amount" DECIMAL(12,2) NOT NULL DEFAULT 0,
-    "currency" TEXT NOT NULL DEFAULT 'CNY',
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Subscription_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Invoice" (
-    "id" TEXT NOT NULL,
-    "tenantId" TEXT NOT NULL,
-    "subscriptionId" TEXT,
-    "stripeInvoiceId" TEXT,
-    "amountDue" DECIMAL(12,2) NOT NULL DEFAULT 0,
-    "amountPaid" DECIMAL(12,2) NOT NULL DEFAULT 0,
-    "currency" TEXT NOT NULL DEFAULT 'CNY',
-    "status" TEXT NOT NULL DEFAULT 'paid',
-    "hostedInvoiceUrl" TEXT,
-    "invoicePdf" TEXT,
-    "periodStart" TIMESTAMP(3),
-    "periodEnd" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Invoice_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "BillingEvent" (
-    "id" TEXT NOT NULL,
-    "tenantId" TEXT,
-    "stripeEventId" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "payload" JSONB NOT NULL,
-    "processedAt" TIMESTAMP(3),
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "BillingEvent_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1304,15 +1215,6 @@ CREATE UNIQUE INDEX "Tenant_slug_key" ON "Tenant"("slug");
 CREATE INDEX "Tenant_status_idx" ON "Tenant"("status");
 
 -- CreateIndex
-CREATE INDEX "Tenant_plan_idx" ON "Tenant"("plan");
-
--- CreateIndex
-CREATE INDEX "Tenant_stripeCustomerId_idx" ON "Tenant"("stripeCustomerId");
-
--- CreateIndex
-CREATE INDEX "Tenant_stripeSubscriptionId_idx" ON "Tenant"("stripeSubscriptionId");
-
--- CreateIndex
 CREATE INDEX "Tenant_createdAt_idx" ON "Tenant"("createdAt");
 
 -- CreateIndex
@@ -1320,54 +1222,6 @@ CREATE UNIQUE INDEX "TenantSetting_tenantId_key" ON "TenantSetting"("tenantId");
 
 -- CreateIndex
 CREATE INDEX "TenantSetting_tenantId_idx" ON "TenantSetting"("tenantId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Plan_code_key" ON "Plan"("code");
-
--- CreateIndex
-CREATE INDEX "Plan_sortOrder_idx" ON "Plan"("sortOrder");
-
--- CreateIndex
-CREATE INDEX "Subscription_tenantId_idx" ON "Subscription"("tenantId");
-
--- CreateIndex
-CREATE INDEX "Subscription_planId_idx" ON "Subscription"("planId");
-
--- CreateIndex
-CREATE INDEX "Subscription_status_idx" ON "Subscription"("status");
-
--- CreateIndex
-CREATE INDEX "Subscription_stripeCustomerId_idx" ON "Subscription"("stripeCustomerId");
-
--- CreateIndex
-CREATE INDEX "Subscription_stripeSubscriptionId_idx" ON "Subscription"("stripeSubscriptionId");
-
--- CreateIndex
-CREATE INDEX "Subscription_createdAt_idx" ON "Subscription"("createdAt");
-
--- CreateIndex
-CREATE INDEX "Invoice_tenantId_idx" ON "Invoice"("tenantId");
-
--- CreateIndex
-CREATE INDEX "Invoice_subscriptionId_idx" ON "Invoice"("subscriptionId");
-
--- CreateIndex
-CREATE INDEX "Invoice_status_idx" ON "Invoice"("status");
-
--- CreateIndex
-CREATE INDEX "Invoice_createdAt_idx" ON "Invoice"("createdAt");
-
--- CreateIndex
-CREATE UNIQUE INDEX "BillingEvent_stripeEventId_key" ON "BillingEvent"("stripeEventId");
-
--- CreateIndex
-CREATE INDEX "BillingEvent_tenantId_idx" ON "BillingEvent"("tenantId");
-
--- CreateIndex
-CREATE INDEX "BillingEvent_type_idx" ON "BillingEvent"("type");
-
--- CreateIndex
-CREATE INDEX "BillingEvent_createdAt_idx" ON "BillingEvent"("createdAt");
 
 -- CreateIndex
 CREATE INDEX "DemoRequest_email_idx" ON "DemoRequest"("email");
@@ -2094,21 +1948,6 @@ CREATE INDEX "AuditLog_createdAt_idx" ON "AuditLog"("createdAt");
 
 -- AddForeignKey
 ALTER TABLE "TenantSetting" ADD CONSTRAINT "TenantSetting_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Subscription" ADD CONSTRAINT "Subscription_planId_fkey" FOREIGN KEY ("planId") REFERENCES "Plan"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_subscriptionId_fkey" FOREIGN KEY ("subscriptionId") REFERENCES "Subscription"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "BillingEvent" ADD CONSTRAINT "BillingEvent_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE SET NULL ON UPDATE CASCADE;

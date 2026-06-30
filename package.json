@@ -24,7 +24,6 @@
     "format": "prettier --write .",
     "smoke": "tsx scripts/smoke-test.ts",
     "smoke:production": "tsx scripts/production-smoke.ts",
-    "stripe:sync-products": "tsx scripts/stripe-sync-products.ts",
     "postman:export": "tsx scripts/postman-export.ts",
     "postman:test:local": "newman run docs/postman/HR_Nexus.postman_collection.json -e docs/postman/HR_Nexus.local.postman_environment.json --env-var \"baseUrl=${BASE_URL:-http://127.0.0.1:3000}\"",
     "postman:test:staging": "newman run docs/postman/HR_Nexus.postman_collection.json -e docs/postman/HR_Nexus.staging.postman_environment.json --env-var \"baseUrl=${BASE_URL:-https://hr-nexus-staging.vercel.app}\"",
@@ -64,7 +63,6 @@
     "react-hook-form": "^7.80.0",
     "recharts": "^3.9.0",
     "sonner": "^2.0.7",
-    "stripe": "^22.3.0",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
   },

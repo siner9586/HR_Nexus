@@ -16,26 +16,6 @@ enum TenantStatus {
   ARCHIVED
 }
 
-enum TenantPlan {
-  FREE
-  STANDARD
-  PROFESSIONAL
-  ENTERPRISE
-  PRIVATE_DEPLOYMENT
-}
-
-enum SubscriptionStatus {
-  TRIALING
-  ACTIVE
-  PAST_DUE
-  CANCELED
-  UNPAID
-  INCOMPLETE
-  INCOMPLETE_EXPIRED
-  PAUSED
-  MOCK
-}
-
 enum UserStatus {
   ACTIVE
   INVITED
@@ -242,9 +222,6 @@ enum AuditAction {
   PUBLISH
   MASKED_VIEW
   SENSITIVE_VIEW
-  BILLING_CHECKOUT
-  BILLING_WEBHOOK
-  BILLING_PORTAL
 }
 
 enum DataScopeType {
@@ -268,27 +245,19 @@ enum EmployeeChangeType {
 }
 
 model Tenant {
-  id                   String       @id @default(cuid())
-  name                 String
-  slug                 String       @unique
-  industry             String?
-  companySize          String?
-  contactName          String?
-  contactEmail         String?
-  contactPhone         String?
-  plan                 TenantPlan   @default(FREE)
-  status               TenantStatus @default(TRIAL)
-  trialEndsAt          DateTime?
-  subscriptionEndsAt   DateTime?
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
+  id           String       @id @default(cuid())
+  name         String
+  slug         String       @unique
+  industry     String?
+  companySize  String?
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  status       TenantStatus @default(TRIAL)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   settings               TenantSetting?
-  subscriptions          Subscription[]
-  invoices               Invoice[]
-  billingEvents          BillingEvent[]
   users                  User[]
   roles                  Role[]
   fieldPermissions       FieldPermission[]
@@ -350,9 +319,6 @@ model Tenant {
   auditLogs              AuditLog[]
 
   @@index([status])
-  @@index([plan])
-  @@index([stripeCustomerId])
-  @@index([stripeSubscriptionId])
   @@index([createdAt])
 }
 
@@ -378,100 +344,6 @@ model TenantSetting {
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
-}
-
-model Plan {
-  id                   String         @id @default(cuid())
-  code                 TenantPlan     @unique
-  name                 String
-  description          String?
-  priceMonthly         Decimal        @default(0) @db.Decimal(12, 2)
-  priceYearly          Decimal        @default(0) @db.Decimal(12, 2)
-  currency             String         @default("CNY")
-  maxEmployees         Int?
-  maxStorageGB         Int            @default(1)
-  includedAiCredits    Int            @default(0)
-  features             Json
-  stripeMonthlyPriceId String?
-  stripeYearlyPriceId  String?
-  isPublic             Boolean        @default(true)
-  sortOrder            Int            @default(0)
-  createdAt            DateTime       @default(now())
-  updatedAt            DateTime       @updatedAt
-  subscriptions        Subscription[]
-
-  @@index([sortOrder])
-}
-
-model Subscription {
-  id                   String             @id @default(cuid())
-  tenantId             String
-  planId               String
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
-  stripePriceId        String?
-  status               SubscriptionStatus @default(MOCK)
-  interval             String             @default("month")
-  seats                Int                @default(1)
-  currentPeriodStart   DateTime?
-  currentPeriodEnd     DateTime?
-  cancelAtPeriodEnd    Boolean            @default(false)
-  amount               Decimal            @default(0) @db.Decimal(12, 2)
-  currency             String             @default("CNY")
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-
-  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  plan     Plan      @relation(fields: [planId], references: [id])
-  invoices Invoice[]
-
-  @@index([tenantId])
-  @@index([planId])
-  @@index([status])
-  @@index([stripeCustomerId])
-  @@index([stripeSubscriptionId])
-  @@index([createdAt])
-}
-
-model Invoice {
-  id               String    @id @default(cuid())
-  tenantId         String
-  subscriptionId   String?
-  stripeInvoiceId  String?
-  amountDue        Decimal   @default(0) @db.Decimal(12, 2)
-  amountPaid       Decimal   @default(0) @db.Decimal(12, 2)
-  currency         String    @default("CNY")
-  status           String    @default("paid")
-  hostedInvoiceUrl String?
-  invoicePdf       String?
-  periodStart      DateTime?
-  periodEnd        DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-
-  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
-
-  @@index([tenantId])
-  @@index([subscriptionId])
-  @@index([status])
-  @@index([createdAt])
-}
-
-model BillingEvent {
-  id            String    @id @default(cuid())
-  tenantId      String?
-  stripeEventId String    @unique
-  type          String
-  payload       Json
-  processedAt   DateTime?
-  createdAt     DateTime  @default(now())
-
-  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-
-  @@index([tenantId])
-  @@index([type])
-  @@index([createdAt])
 }
 
 model DemoRequest {

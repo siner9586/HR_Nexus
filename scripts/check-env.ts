@@ -1,4 +1,4 @@
-const required = ["DATABASE_URL", "NEXTAUTH_SECRET", "APP_URL", "BILLING_MOCK_MODE"];
+const required = ["DATABASE_URL", "NEXTAUTH_SECRET", "APP_URL"];
 const missing = required.filter((key) => !process.env[key]);
 
 if (missing.length) {

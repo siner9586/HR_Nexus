@@ -29,7 +29,7 @@ export function DataTable<T extends Record<string, unknown>>({
         <thead className="bg-slate-50">
           <tr>
             {columns.map((column) => (
-              <th key={String(column.key)} className="whitespace-nowrap px-4 py-3 text-left font-semibold text-slate-600">
+              <th key={String(column.key)} data-column={String(column.key)} className="whitespace-nowrap px-4 py-3 text-left font-semibold text-slate-600">
                 {column.header}
               </th>
             ))}
@@ -41,8 +41,8 @@ export function DataTable<T extends Record<string, unknown>>({
               {columns.map((column) => {
                 const value = row[column.key as keyof T];
                 return (
-                  <td key={String(column.key)} className="whitespace-nowrap px-4 py-3 text-slate-700">
-                    {column.render ? column.render(row) : column.key === "status" ? <StatusBadge status={String(value ?? "")} /> : String(value ?? "-")}
+                  <td key={String(column.key)} data-column={String(column.key)} className="whitespace-nowrap px-4 py-3 text-slate-700">
+                    {column.render ? column.render(row) : String(column.key).toLowerCase().includes("status") ? <StatusBadge status={String(value ?? "")} /> : String(value ?? "-")}
                   </td>
                 );
               })}

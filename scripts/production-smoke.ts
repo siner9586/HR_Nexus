@@ -42,10 +42,15 @@ async function main() {
   assertJsonSuccess("/api/auth/me", me);
   const meBody = me.body as { data?: { user?: { tenantId?: string } } };
   const tenantId = meBody.data?.user?.tenantId;
-  const protectedPaths = tenantId ? ["/api/billing/current", "/api/employees"] : ["/api/platform/overview", "/api/platform/plans"];
+  const protectedPaths = tenantId ? ["/api/employees", "/api/employees/export"] : ["/api/platform/overview", "/api/platform/tenants"];
   for (const path of protectedPaths) {
     const result = await smokeRequest(baseUrl, path, { headers: { cookie }, retries: 3, timeoutMs: 12000, localHint: false });
-    assertJsonSuccess(path, result);
+    if (path.endsWith("/export")) {
+      const contentType = result.response.headers.get("content-type") ?? "";
+      if (!result.response.ok || !contentType.includes("text/csv")) throw new Error(`${path} failed with ${result.response.status}`);
+    } else {
+      assertJsonSuccess(path, result);
+    }
   }
 
   console.log(`Production smoke checks passed for ${baseUrl}.`);

@@ -5,7 +5,8 @@ describe("permissions", () => {
   it("loads tenant owner permissions", () => {
     const permissions = uniquePermissions(["TENANT_OWNER"]);
     expect(permissions).toContain("employees.view");
-    expect(permissions).toContain("billing.checkout");
+    expect(permissions).toContain("employees.export");
+    expect(permissions).toContain("organization.export");
   });
 
   it("denies employee payroll sensitive permission", () => {
