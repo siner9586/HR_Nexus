@@ -33,7 +33,6 @@ services:
       NEXTAUTH_SECRET: docker-local-secret-change-me
       NEXTAUTH_URL: http://localhost:3000
       APP_URL: http://localhost:3000
-      BILLING_MOCK_MODE: "true"
       UPLOAD_PROVIDER: local
     ports:
       - "3000:3000"

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -15,9 +16,9 @@ const demoAccounts = [
   ["普通员工", "employee@demo.com", "Demo123456!"],
 ] as const;
 
-export function LoginForm() {
-  const [email, setEmail] = useState("owner@demo.com");
-  const [password, setPassword] = useState("Demo123456!");
+export function LoginForm({ demoLoginEnabled }: { demoLoginEnabled: boolean }) {
+  const [email, setEmail] = useState(demoLoginEnabled ? "owner@demo.com" : "");
+  const [password, setPassword] = useState(demoLoginEnabled ? "Demo123456!" : "");
   const [loading, setLoading] = useState(false);
 
   async function login(nextEmail = email, nextPassword = password) {
@@ -57,22 +58,31 @@ export function LoginForm() {
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           登录
         </Button>
-        <div className="grid gap-2 border-t border-slate-100 pt-4">
-          {demoAccounts.map(([label, demoEmail, demoPassword]) => (
-            <Button
-              key={demoEmail}
-              variant="secondary"
-              type="button"
-              onClick={() => {
-                setEmail(demoEmail);
-                setPassword(demoPassword);
-                void login(demoEmail, demoPassword);
-              }}
-            >
-              {label}演示登录
-            </Button>
-          ))}
-        </div>
+        <Link
+          href="/register"
+          className="inline-flex h-10 w-full items-center justify-center rounded-md border border-slate-300 bg-white px-4 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+        >
+          创建企业账号
+        </Link>
+        {demoLoginEnabled ? (
+          <div className="grid gap-2 border-t border-slate-100 pt-4">
+            <p className="text-xs font-medium text-amber-700">Demo environment</p>
+            {demoAccounts.map(([label, demoEmail, demoPassword]) => (
+              <Button
+                key={demoEmail}
+                variant="secondary"
+                type="button"
+                onClick={() => {
+                  setEmail(demoEmail);
+                  setPassword(demoPassword);
+                  void login(demoEmail, demoPassword);
+                }}
+              >
+                {label}演示登录
+              </Button>
+            ))}
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

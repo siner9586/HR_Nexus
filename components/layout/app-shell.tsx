@@ -7,7 +7,6 @@ import {
   CalendarClock,
   ChartNoAxesCombined,
   CheckSquare,
-  CreditCard,
   FileArchive,
   FileText,
   GraduationCap,
@@ -20,7 +19,6 @@ import {
   WalletCards,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { StatusBadge } from "@/components/ui/status-badge";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { hasPermission, isPlatformAdmin, type AuthUser } from "@/lib/permissions";
@@ -53,7 +51,6 @@ const nav: NavItem[] = [
   { href: "/analytics", label: "数据分析", permission: "analytics.view", icon: ChartNoAxesCombined },
   { href: "/notifications", label: "通知中心", permission: "notifications.view", icon: Bell },
   { href: "/files", label: "文件中心", permission: "files.view", icon: FileArchive },
-  { href: "/billing", label: "计费与套餐", permission: "billing.view", icon: CreditCard },
   { href: "/settings", label: "系统设置", permission: "settings.view", icon: Settings },
   { href: "/platform", label: "平台管理", permission: "platform.view", icon: ShieldCheck, platformOnly: true },
 ];
@@ -70,7 +67,7 @@ function visibleNav(user: AuthUser | null) {
 export async function AppShell({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
   const tenant = user?.tenantId
-    ? await prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { name: true, plan: true, status: true } })
+    ? await prisma.tenant.findUnique({ where: { id: user.tenantId }, select: { name: true, status: true } })
     : null;
   const notifications = user?.tenantId && user?.id ? await prisma.notification.count({ where: { tenantId: user.tenantId, userId: user.id, status: "UNREAD" } }) : 0;
 
@@ -81,7 +78,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
           <div className="flex h-9 w-9 items-center justify-center rounded-md bg-blue-600 font-semibold">HR</div>
           <div>
             <p className="font-semibold">HR Nexus</p>
-            <p className="text-xs text-slate-400">Enterprise HR SaaS</p>
+            <p className="text-xs text-slate-400">Enterprise HR Platform</p>
           </div>
         </div>
         <nav className="h-[calc(100vh-4rem)] overflow-y-auto px-3 py-4 scrollbar-thin">
@@ -102,7 +99,6 @@ export async function AppShell({ children }: { children: ReactNode }) {
             <div className="hidden text-sm font-medium text-slate-700 sm:block">
               {tenant ? tenant.name : isPlatformAdmin(user) ? "平台管理控制台" : "HR Nexus"}
             </div>
-            {tenant ? <StatusBadge status={tenant.plan} /> : null}
             <div className="relative hidden max-w-md flex-1 md:block">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input className="pl-9" placeholder="搜索员工、合同、审批、文件" />

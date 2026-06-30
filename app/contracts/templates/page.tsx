@@ -1,5 +1,7 @@
 import { ModulePage } from "@/components/shared/module-page";
 
-export default function Page() {
-  return <ModulePage moduleKey="contracts" />;
+type PageProps = { searchParams?: Promise<Record<string, string | string[] | undefined>> };
+
+export default function Page({ searchParams }: PageProps) {
+  return <ModulePage moduleKey="contracts-templates" searchParams={searchParams} />;
 }

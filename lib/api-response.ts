@@ -7,8 +7,6 @@ export type ApiErrorCode =
   | "NOT_FOUND"
   | "CONFLICT"
   | "VALIDATION_ERROR"
-  | "PLAN_LIMIT_EXCEEDED"
-  | "BILLING_ERROR"
   | "INTERNAL_ERROR";
 
 export type ApiEnvelope<T> =
@@ -45,8 +43,6 @@ export function fail(
       FORBIDDEN: 403,
       NOT_FOUND: 404,
       CONFLICT: 409,
-      PLAN_LIMIT_EXCEEDED: 402,
-      BILLING_ERROR: 402,
       INTERNAL_ERROR: 500,
     } satisfies Record<ApiErrorCode, number>)[code];
 

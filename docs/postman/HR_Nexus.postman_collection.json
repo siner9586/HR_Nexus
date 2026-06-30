@@ -2,27 +2,27 @@
   "info": {
     "name": "HR Nexus API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "HR Nexus V1.0 enterprise HR SaaS API collection with auth, tenant, RBAC, HR modules, billing and permission tests."
+    "description": "HR Nexus V1.0 enterprise HR API collection with auth, tenant, RBAC, module actions, CSV exports and import tests."
   },
   "item": [
     {
-      "name": "Auth",
+      "name": "Health",
       "item": [
         {
-          "name": "Login Platform Admin",
+          "name": "Health Check",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"保存 token\", function () { const json = pm.response.json(); pm.expect(json.success).to.eql(true); pm.environment.set(\"token\", json.data.token); if (json.data.user?.tenantId) pm.environment.set(\"tenantId\", json.data.user.tenantId); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
                 "key": "Content-Type",
@@ -34,27 +34,59 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/health",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "auth",
-                "login"
+                "health"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{platformAdminEmail}}\",\n  \"password\": \"{{platformAdminPassword}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           }
         },
+        {
+          "name": "Version",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/version",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "version"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
         {
           "name": "Login Owner",
           "event": [
@@ -63,7 +95,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"保存 token\", function () { const json = pm.response.json(); pm.expect(json.success).to.eql(true); pm.environment.set(\"token\", json.data.token); if (json.data.user?.tenantId) pm.environment.set(\"tenantId\", json.data.user.tenantId); });"
+                  "pm.test(\"save token\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); pm.environment.set(\"token\", json.data.token); if (json.data.user?.tenantId) pm.environment.set(\"tenantId\", json.data.user.tenantId); });"
                 ]
               }
             }
@@ -103,147 +135,6 @@
           }
         },
         {
-          "name": "Login HR",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"保存 token\", function () { const json = pm.response.json(); pm.expect(json.success).to.eql(true); pm.environment.set(\"token\", json.data.token); if (json.data.user?.tenantId) pm.environment.set(\"tenantId\", json.data.user.tenantId); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{hrEmail}}\",\n  \"password\": \"{{hrPassword}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Login Payroll",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"保存 token\", function () { const json = pm.response.json(); pm.expect(json.success).to.eql(true); pm.environment.set(\"token\", json.data.token); if (json.data.user?.tenantId) pm.environment.set(\"tenantId\", json.data.user.tenantId); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{payrollEmail}}\",\n  \"password\": \"{{payrollPassword}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Login Employee",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"保存 token\", function () { const json = pm.response.json(); pm.expect(json.success).to.eql(true); pm.environment.set(\"token\", json.data.token); if (json.data.user?.tenantId) pm.environment.set(\"tenantId\", json.data.user.tenantId); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{employeeEmail}}\",\n  \"password\": \"{{employeePassword}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
           "name": "Me",
           "event": [
             {
@@ -251,7 +142,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -289,7 +180,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -332,7 +223,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -370,7 +261,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -401,14 +292,14 @@
           }
         },
         {
-          "name": "List Plans",
+          "name": "List Demo Requests",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -426,143 +317,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/platform/plans",
+              "raw": "{{baseUrl}}/api/demo-requests",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "platform",
-                "plans"
+                "demo-requests"
               ]
-            }
-          }
-        },
-        {
-          "name": "List Subscriptions",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/platform/subscriptions",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "platform",
-                "subscriptions"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Tenant",
-      "item": [
-        {
-          "name": "Current Tenant",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/tenants/current",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "tenants",
-                "current"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Update Tenant Settings",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/tenants/settings",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "tenants",
-                "settings"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"payrollDay\": 10\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           }
         }
@@ -579,16 +341,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"列表返回数组\", function () { const json = pm.response.json(); pm.expect(json.data.items || json.data).to.be.an(\"array\"); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -606,13 +359,13 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/employees",
+              "raw": "{{baseUrl}}/api/employees?search=&status=&page=1&pageSize=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "employees"
+                "employees?search=&status=&page=1&pageSize=20"
               ]
             }
           }
@@ -625,16 +378,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"保存 employeeId\", function () { const json = pm.response.json(); if (json.data?.id) pm.environment.set(\"employeeId\", json.data.id); });"
+                  "pm.test(\"save employee id\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); if (json.data?.id) pm.environment.set(\"employeeId\", json.data.id); });"
                 ]
               }
             }
@@ -663,92 +407,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Postman测试员工\",\n  \"email\": \"postman.employee@example.com\",\n  \"phone\": \"13812345678\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Get Employee Detail",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/employees/{{employeeId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "employees",
-                "{{employeeId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Update Employee",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/employees/{{employeeId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "employees",
-                "{{employeeId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"workLocation\": \"合肥\"\n}",
+              "raw": "{\n  \"name\": \"Postman测试员工\",\n  \"email\": \"postman.employee@example.com\",\n  \"phone\": \"13812345678\",\n  \"hireDate\": \"2026-07-01\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -765,7 +424,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -783,33 +442,33 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/employees/export",
+              "raw": "{{baseUrl}}/api/employees/export?search=&status=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "employees",
-                "export"
+                "export?search=&status="
               ]
             }
           }
         },
         {
-          "name": "Get Employee Changes",
+          "name": "Import Employees",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -821,55 +480,24 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/employees/{{employeeId}}/changes",
+              "raw": "{{baseUrl}}/api/employees/import",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "employees",
-                "{{employeeId}}",
-                "changes"
+                "import"
               ]
-            }
-          }
-        },
-        {
-          "name": "Get Employee Audit Logs",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Postman CSV import\",\n  \"csv\": \"name,phone,email,employeeNo,departmentName,positionName,hireDate,employmentType,workLocation\\nPostman导入员工,13811112222,postman.import@example.com,PMIMPORT001,人力资源部,HR Specialist,2026-07-01,FULL_TIME,合肥\\n\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/employees/{{employeeId}}/audit-logs",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "employees",
-                "{{employeeId}}",
-                "audit-logs"
-              ]
             }
           }
         }
@@ -886,7 +514,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -904,51 +532,13 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/departments",
+              "raw": "{{baseUrl}}/api/departments?search=&status=ACTIVE",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "departments"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Department Tree",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/departments/tree",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "departments",
-                "tree"
+                "departments?search=&status=ACTIVE"
               ]
             }
           }
@@ -961,7 +551,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -990,7 +580,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"companyId\": \"{{companyId}}\",\n  \"name\": \"Postman部门\",\n  \"code\": \"POSTMAN\"\n}",
+              "raw": "{\n  \"name\": \"Postman部门\",\n  \"code\": \"PM-DEPT\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1000,14 +590,14 @@
           }
         },
         {
-          "name": "List Positions",
+          "name": "Export Departments",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -1025,13 +615,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/positions",
+              "raw": "{{baseUrl}}/api/departments/export?status=ACTIVE",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "positions"
+                "departments",
+                "export?status=ACTIVE"
               ]
             }
           }
@@ -1044,7 +635,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -1073,7 +664,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"departmentId\": \"{{departmentId}}\",\n  \"name\": \"Postman岗位\",\n  \"code\": \"POSTMAN\"\n}",
+              "raw": "{\n  \"name\": \"Postman岗位\",\n  \"code\": \"PM-POS\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1083,20 +674,58 @@
           }
         },
         {
-          "name": "List Cost Centers",
+          "name": "Export Positions",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
           ],
           "request": {
             "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/positions/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "positions",
+                "export"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Cost Center",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -1116,23 +745,27 @@
                 "api",
                 "cost-centers"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman成本中心\",\n  \"code\": \"PM-CC\",\n  \"budget\": 100000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "Contracts",
-      "item": [
+        },
         {
-          "name": "List Contracts",
+          "name": "Export Cost Centers",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -1150,13 +783,56 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/contracts",
+              "raw": "{{baseUrl}}/api/cost-centers/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "contracts"
+                "cost-centers",
+                "export"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contracts",
+      "item": [
+        {
+          "name": "List Contracts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contracts?status=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contracts?status="
               ]
             }
           }
@@ -1169,7 +845,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -1198,7 +874,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"employeeId\": \"{{employeeId}}\",\n  \"contractNo\": \"POSTMAN-001\",\n  \"contractType\": \"FIXED_TERM\",\n  \"startDate\": \"2026-07-01T00:00:00.000Z\"\n}",
+              "raw": "{\n  \"contractNo\": \"PM-HT-001\",\n  \"contractType\": \"FIXED_TERM\",\n  \"startDate\": \"2026-07-01\",\n  \"endDate\": \"2029-06-30\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1208,14 +884,14 @@
           }
         },
         {
-          "name": "Get Contract Detail",
+          "name": "Export Contracts",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -1233,168 +909,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/contracts/{{contractId}}",
+              "raw": "{{baseUrl}}/api/contracts/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "contracts",
-                "{{contractId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Expiring Contracts",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/contracts/expiring",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "contracts",
-                "expiring"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Renew Contract",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/contracts/{{contractId}}/renew",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "contracts",
-                "{{contractId}}",
-                "renew"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Terminate Contract",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/contracts/{{contractId}}/terminate",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "contracts",
-                "{{contractId}}",
-                "terminate"
-              ]
-            }
-          }
-        },
-        {
-          "name": "List Templates",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/contracts/templates",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "contracts",
-                "templates"
+                "export"
               ]
             }
           }
@@ -1405,20 +927,20 @@
       "name": "Attendance",
       "item": [
         {
-          "name": "Clock Records",
+          "name": "Create Clock Record",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -1439,48 +961,10 @@
                 "attendance",
                 "clock-records"
               ]
-            }
-          }
-        },
-        {
-          "name": "Clock In",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/attendance/clock",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "attendance",
-                "clock"
-              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"clockType\": \"CHECK_IN\"\n}",
+              "raw": "{\n  \"clockType\": \"CHECK_IN\",\n  \"source\": \"WEB\",\n  \"location\": \"合肥\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1490,14 +974,14 @@
           }
         },
         {
-          "name": "Daily Attendance",
+          "name": "Export Clock Records",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -1515,109 +999,34 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/attendance/daily",
+              "raw": "{{baseUrl}}/api/attendance/clock-records/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "attendance",
-                "daily"
+                "clock-records",
+                "export"
               ]
             }
           }
         },
         {
-          "name": "Monthly Attendance",
+          "name": "Create Shift",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/attendance/monthly",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "attendance",
-                "monthly"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Rules",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/attendance/rules",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "attendance",
-                "rules"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Shifts",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -1638,18 +1047,27 @@
                 "attendance",
                 "shifts"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman早班\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"18:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Schedules",
+          "name": "Export Shifts",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -1667,14 +1085,15 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/attendance/schedules",
+              "raw": "{{baseUrl}}/api/attendance/shifts/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "attendance",
-                "schedules"
+                "shifts",
+                "export"
               ]
             }
           }
@@ -1685,120 +1104,6 @@
       "name": "Leave",
       "item": [
         {
-          "name": "Leave Types",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/leave/types",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "leave",
-                "types"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Leave Balances",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/leave/balances",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "leave",
-                "balances"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Leave Requests",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/leave/requests",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "leave",
-                "requests"
-              ]
-            }
-          }
-        },
-        {
           "name": "Create Leave Request",
           "event": [
             {
@@ -1806,7 +1111,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -1836,7 +1141,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"employeeId\": \"{{employeeId}}\",\n  \"leaveTypeId\": \"{{leaveTypeId}}\",\n  \"startAt\": \"2026-07-01T09:00:00.000Z\",\n  \"endAt\": \"2026-07-01T18:00:00.000Z\",\n  \"durationHours\": 8\n}",
+              "raw": "{\n  \"startAt\": \"2026-07-01T09:00:00.000Z\",\n  \"endAt\": \"2026-07-01T18:00:00.000Z\",\n  \"durationHours\": 8,\n  \"reason\": \"Postman请假\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1846,20 +1151,59 @@
           }
         },
         {
-          "name": "Overtime Requests",
+          "name": "Export Leave Requests",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
           ],
           "request": {
             "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/leave/requests/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "leave",
+                "requests",
+                "export"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Overtime",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -1880,24 +1224,72 @@
                 "leave",
                 "overtime"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startAt\": \"2026-07-01T19:00:00.000Z\",\n  \"endAt\": \"2026-07-01T21:00:00.000Z\",\n  \"durationHours\": 2,\n  \"compensationType\": \"PAY\",\n  \"reason\": \"Postman加班\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Punch Corrections",
+          "name": "Export Overtime",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
           ],
           "request": {
             "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/leave/overtime/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "leave",
+                "overtime",
+                "export"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Punch Correction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -1918,6 +1310,54 @@
                 "leave",
                 "punch-corrections"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-07-01\",\n  \"correctionTime\": \"2026-07-01T09:00:00.000Z\",\n  \"clockType\": \"CHECK_IN\",\n  \"reason\": \"Postman补卡\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Export Punch Corrections",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/leave/punch-corrections/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "leave",
+                "punch-corrections",
+                "export"
+              ]
             }
           }
         }
@@ -1927,20 +1367,20 @@
       "name": "Payroll",
       "item": [
         {
-          "name": "Salary Items",
+          "name": "Create Salary Item",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -1961,82 +1401,15 @@
                 "payroll",
                 "items"
               ]
-            }
-          }
-        },
-        {
-          "name": "Salary Structures",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman奖金\",\n  \"code\": \"PM-BONUS\",\n  \"type\": \"EARNING\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
               }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payroll/structures",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payroll",
-                "structures"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Salary Batches",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payroll/batches",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payroll",
-                "batches"
-              ]
             }
           }
         },
@@ -2048,7 +1421,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -2088,174 +1461,14 @@
           }
         },
         {
-          "name": "Calculate Salary Batch",
+          "name": "Export Salary Batches",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payroll/batches/{{salaryBatchId}}/calculate",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payroll",
-                "batches",
-                "{{salaryBatchId}}",
-                "calculate"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Submit Salary Batch",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payroll/batches/{{salaryBatchId}}/submit",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payroll",
-                "batches",
-                "{{salaryBatchId}}",
-                "submit"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Approve Salary Batch",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payroll/batches/{{salaryBatchId}}/approve",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payroll",
-                "batches",
-                "{{salaryBatchId}}",
-                "approve"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Publish Salary Batch",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payroll/batches/{{salaryBatchId}}/publish",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payroll",
-                "batches",
-                "{{salaryBatchId}}",
-                "publish"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Salary Records",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -2273,7 +1486,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/payroll/batches/{{salaryBatchId}}/records",
+              "raw": "{{baseUrl}}/api/payroll/batches/export",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2281,8 +1494,7 @@
                 "api",
                 "payroll",
                 "batches",
-                "{{salaryBatchId}}",
-                "records"
+                "export"
               ]
             }
           }
@@ -2290,92 +1502,17 @@
       ]
     },
     {
-      "name": "Payslips",
+      "name": "Social Security",
       "item": [
         {
-          "name": "List My Payslips",
+          "name": "Create Employee Social Security",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payslips",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payslips"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Payslip",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payslips/{{payslipId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "payslips",
-                "{{payslipId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Confirm Payslip",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -2393,28 +1530,36 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/payslips/{{payslipId}}/confirm",
+              "raw": "{{baseUrl}}/api/social-security/employees",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "payslips",
-                "{{payslipId}}",
-                "confirm"
+                "social-security",
+                "employees"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city\": \"合肥\",\n  \"base\": 7000,\n  \"startMonth\": \"2026-07\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Employee Cannot View Others Payslip",
+          "name": "Export Social Security",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"无权限返回 403\", function () { pm.expect(pm.response.code).to.eql(403); pm.expect(pm.response.json().error.code).to.eql(\"FORBIDDEN\"); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -2432,14 +1577,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/payslips/{{otherPayslipId}}",
+              "raw": "{{baseUrl}}/api/social-security/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "payslips",
-                "{{otherPayslipId}}"
+                "social-security",
+                "export"
               ]
             }
           }
@@ -2450,20 +1595,20 @@
       "name": "Workflows",
       "item": [
         {
-          "name": "Workflow Templates",
+          "name": "Create Workflow Template",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -2484,18 +1629,27 @@
                 "workflows",
                 "templates"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman流程\",\n  \"code\": \"PM-WF\",\n  \"businessType\": \"LEAVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Workflow Instances",
+          "name": "Export Workflows",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -2513,14 +1667,15 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/workflows/instances",
+              "raw": "{{baseUrl}}/api/workflows/templates/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "workflows",
-                "instances"
+                "templates",
+                "export"
               ]
             }
           }
@@ -2531,14 +1686,14 @@
       "name": "Approvals",
       "item": [
         {
-          "name": "My Tasks",
+          "name": "List Approval Tasks",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -2556,33 +1711,33 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/approvals/tasks",
+              "raw": "{{baseUrl}}/api/approvals/tasks?status=PENDING",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "approvals",
-                "tasks"
+                "tasks?status=PENDING"
               ]
             }
           }
         },
         {
-          "name": "Approve Task",
+          "name": "Export Approvals",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
                 "key": "Content-Type",
@@ -2594,7 +1749,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/approvals/tasks/{{workflowTaskId}}/approve",
+              "raw": "{{baseUrl}}/api/approvals/tasks/export",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2602,48 +1757,7 @@
                 "api",
                 "approvals",
                 "tasks",
-                "{{workflowTaskId}}",
-                "approve"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Reject Task",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/approvals/tasks/{{workflowTaskId}}/reject",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "approvals",
-                "tasks",
-                "{{workflowTaskId}}",
-                "reject"
+                "export"
               ]
             }
           }
@@ -2654,96 +1768,20 @@
       "name": "Recruitment",
       "item": [
         {
-          "name": "Requests",
+          "name": "Create Candidate",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/recruitment/requests",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "recruitment",
-                "requests"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Jobs",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/recruitment/jobs",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "recruitment",
-                "jobs"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Candidates",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -2764,24 +1802,33 @@
                 "recruitment",
                 "candidates"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman候选人\",\n  \"phone\": \"13899990000\",\n  \"email\": \"candidate@example.com\",\n  \"source\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Convert Candidate To Onboarding",
+          "name": "Export Candidates",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
                 "key": "Content-Type",
@@ -2793,7 +1840,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/recruitment/candidates/{{candidateId}}/convert-to-onboarding",
+              "raw": "{{baseUrl}}/api/recruitment/candidates/export",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -2801,8 +1848,7 @@
                 "api",
                 "recruitment",
                 "candidates",
-                "{{candidateId}}",
-                "convert-to-onboarding"
+                "export"
               ]
             }
           }
@@ -2813,20 +1859,20 @@
       "name": "Performance",
       "item": [
         {
-          "name": "Cycles",
+          "name": "Create Performance Cycle",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -2847,18 +1893,27 @@
                 "performance",
                 "cycles"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman绩效周期\",\n  \"type\": \"QUARTER\",\n  \"startDate\": \"2026-07-01\",\n  \"endDate\": \"2026-09-30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Goals",
+          "name": "Export Performance Reviews",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -2876,52 +1931,15 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/performance/goals",
+              "raw": "{{baseUrl}}/api/performance/reviews/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "performance",
-                "goals"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Reviews",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/performance/reviews",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "performance",
-                "reviews"
+                "reviews",
+                "export"
               ]
             }
           }
@@ -2932,20 +1950,20 @@
       "name": "Training",
       "item": [
         {
-          "name": "Courses",
+          "name": "Create Course",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -2966,24 +1984,72 @@
                 "training",
                 "courses"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman课程\",\n  \"courseType\": \"制度\",\n  \"durationMinutes\": 60\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Tasks",
+          "name": "Export Courses",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
           ],
           "request": {
             "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/training/courses/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "training",
+                "courses",
+                "export"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Training Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -3004,24 +2070,33 @@
                 "training",
                 "tasks"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dueAt\": \"2026-07-10T18:00:00.000Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Complete Task",
+          "name": "Export Training Tasks",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
                 "key": "Content-Type",
@@ -3033,7 +2108,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/training/tasks/{{trainingTaskId}}/complete",
+              "raw": "{{baseUrl}}/api/training/tasks/export",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -3041,241 +2116,7 @@
                 "api",
                 "training",
                 "tasks",
-                "{{trainingTaskId}}",
-                "complete"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Analytics",
-      "item": [
-        {
-          "name": "Dashboard",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/analytics/dashboard",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "analytics",
-                "dashboard"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Headcount",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/analytics/headcount",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "analytics",
-                "headcount"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Turnover",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/analytics/turnover",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "analytics",
-                "turnover"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Payroll Cost",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/analytics/payroll-cost",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "analytics",
-                "payroll-cost"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Contracts",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/analytics/contracts",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "analytics",
-                "contracts"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Attendance",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/analytics/attendance",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "analytics",
-                "attendance"
+                "export"
               ]
             }
           }
@@ -3286,20 +2127,20 @@
       "name": "Notifications",
       "item": [
         {
-          "name": "List Notifications",
+          "name": "Create Notification",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -3319,24 +2160,33 @@
                 "api",
                 "notifications"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman通知\",\n  \"content\": \"Postman通知内容\",\n  \"type\": \"SYSTEM\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Mark Read",
+          "name": "Export Notifications",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
                 "key": "Content-Type",
@@ -3348,53 +2198,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/notifications/{{notificationId}}/read",
+              "raw": "{{baseUrl}}/api/notifications/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "notifications",
-                "{{notificationId}}",
-                "read"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Mark All Read",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/notifications/read-all",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "notifications",
-                "read-all"
+                "export"
               ]
             }
           }
@@ -3405,20 +2216,20 @@
       "name": "Files",
       "item": [
         {
-          "name": "List Files",
+          "name": "Create File Metadata",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -3438,48 +2249,10 @@
                 "api",
                 "files"
               ]
-            }
-          }
-        },
-        {
-          "name": "Upload File",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/files/upload",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "files",
-                "upload"
-              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fileName\": \"postman.pdf\",\n  \"fileUrl\": \"/demo/files/postman.pdf\",\n  \"fileSize\": 1024,\n  \"mimeType\": \"application/pdf\"\n}",
+              "raw": "{\n  \"fileName\": \"postman.pdf\",\n  \"fileUrl\": \"/demo/files/postman.pdf\",\n  \"fileSize\": 1024,\n  \"mimeType\": \"application/pdf\",\n  \"ownerType\": \"employee\",\n  \"visibility\": \"HR_ONLY\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3489,14 +2262,14 @@
           }
         },
         {
-          "name": "Download File",
+          "name": "Export Files",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -3514,15 +2287,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/files/{{fileId}}/download",
+              "raw": "{{baseUrl}}/api/files/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "files",
-                "{{fileId}}",
-                "download"
+                "export"
               ]
             }
           }
@@ -3533,14 +2305,14 @@
       "name": "Audit",
       "item": [
         {
-          "name": "Audit Logs",
+          "name": "Export Audit Logs",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -3558,13 +2330,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/audit-logs",
+              "raw": "{{baseUrl}}/api/audit-logs/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "audit-logs"
+                "audit-logs",
+                "export"
               ]
             }
           }
@@ -3572,17 +2345,17 @@
       ]
     },
     {
-      "name": "Billing",
+      "name": "Analytics",
       "item": [
         {
-          "name": "Current Billing",
+          "name": "Export Analytics",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
+                  "pm.test(\"CSV response\", function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"text/csv\"); });"
                 ]
               }
             }
@@ -3600,27 +2373,32 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/billing/current",
+              "raw": "{{baseUrl}}/api/analytics/export",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "billing",
-                "current"
+                "analytics",
+                "export"
               ]
             }
           }
-        },
+        }
+      ]
+    },
+    {
+      "name": "Demo Request",
+      "item": [
         {
-          "name": "Create Checkout Session",
+          "name": "Create Demo Request",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Checkout 返回 URL\", function () { const json = pm.response.json(); pm.expect(json.success).to.eql(true); pm.expect(json.data.url).to.be.a(\"string\"); });"
+                  "pm.test(\"status 200/201 and success=true\", function () { pm.expect([200, 201]).to.include(pm.response.code); const json = pm.response.json(); pm.expect(json.success).to.eql(true); });"
                 ]
               }
             }
@@ -3638,151 +2416,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/billing/checkout",
+              "raw": "{{baseUrl}}/api/demo-requests",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "billing",
-                "checkout"
+                "demo-requests"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"planCode\": \"PROFESSIONAL\",\n  \"interval\": \"month\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Create Billing Portal Session",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/billing/portal",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "billing",
-                "portal"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Mock Checkout",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/billing/mock-upgrade",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "billing",
-                "mock-upgrade"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"planCode\": \"ENTERPRISE\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Webhook Test Notes",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"统一返回 success=true\", function () { pm.expect(pm.response.json().success).to.eql(true); });"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/billing/webhook",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "billing",
-                "webhook"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"evt_mock_postman\",\n  \"type\": \"checkout.session.completed\",\n  \"data\": {\n    \"object\": {\n      \"metadata\": {\n        \"tenantId\": \"{{tenantId}}\",\n        \"planCode\": \"PROFESSIONAL\"\n      }\n    }\n  }\n}",
+              "raw": "{\n  \"name\": \"Postman预约\",\n  \"company\": \"Postman测试公司\",\n  \"email\": \"demo.request@example.com\",\n  \"phone\": \"13800000000\",\n  \"employeeCount\": \"200-500\",\n  \"message\": \"希望了解 HR Nexus\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

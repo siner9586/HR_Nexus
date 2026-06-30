@@ -6,7 +6,7 @@
 npm run test
 ```
 
-覆盖 permissions、masking、tenant、payroll、workflow、billing。
+覆盖 permissions、masking、tenant、payroll、workflow、export。
 
 ## Smoke
 
@@ -16,7 +16,7 @@ npm run test
 npm run smoke
 ```
 
-覆盖登录、me、员工、合同、dashboard、billing checkout。
+覆盖登录、me、员工、合同、dashboard 和核心模块 API。
 
 ## E2E
 
@@ -24,7 +24,7 @@ npm run smoke
 npm run test:e2e
 ```
 
-覆盖登录、Dashboard、员工、权限差异、Billing。
+覆盖登录、Dashboard、员工、权限差异和主要页面入口。
 
 ## Postman
 

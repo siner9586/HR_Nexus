@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { PLAN_LIMITS } from "@/lib/constants";
-import { assertPlanEmployeeLimit } from "@/lib/tenant";
+import { requireTenantAccess } from "@/lib/tenant";
 
 describe("tenant", () => {
-  it("enforces employee plan limits", () => {
-    expect(PLAN_LIMITS.FREE.maxEmployees).toBe(20);
-    expect(() => assertPlanEmployeeLimit("FREE", 20)).toThrow(/上限/);
-    expect(() => assertPlanEmployeeLimit("PROFESSIONAL", 120)).not.toThrow();
+  it("enforces tenant data isolation", () => {
+    expect(() =>
+      requireTenantAccess({
+        id: "u1",
+        tenantId: "t1",
+        employeeId: null,
+        name: "Owner",
+        email: "owner@example.com",
+        roles: ["TENANT_OWNER"],
+        permissions: [],
+      }, "t2"),
+    ).toThrow(/不能访问其他租户数据/);
   });
 });

@@ -8,8 +8,7 @@ seed 生成：
 - 打卡：3170
 - 工资条：180
 - 审计日志：200
-- 套餐：FREE、STANDARD、PROFESSIONAL、ENTERPRISE、PRIVATE_DEPLOYMENT
-- 订阅、发票、BillingEvent、组织、岗位、成本中心、假期余额、薪资项目、审批流、招聘、绩效、培训、通知、文件、导出任务
+- 组织、岗位、成本中心、假期余额、薪资项目、审批流、招聘、绩效、培训、通知、文件、导出任务
 
 运行：
 

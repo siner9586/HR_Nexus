@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   const icons = [Users, ClipboardCheck, FileWarning, WalletCards];
   return (
     <AppShell>
-      <PageHeader title="工作台" description="按角色展示人力资源运营、审批、合同、考勤、薪资和套餐用量指标。" />
+      <PageHeader title="工作台" description="按角色展示人力资源运营、审批、合同、考勤、薪资和组织运行指标。" />
       <div className="space-y-5 p-4 sm:p-6">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {data.stats.slice(0, 8).map((stat, index) => {
